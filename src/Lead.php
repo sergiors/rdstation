@@ -5,9 +5,9 @@ declare(strict_types = 1);
 namespace Sergiors\RDStation;
 
 use Respect\Validation\Validator as v;
-use function Prelude\{equals, anyPass};
 use GuzzleHttp\Psr7\Request;
 use function GuzzleHttp\json_encode;
+use function Prelude\{equals, anyPass};
 
 final class Lead implements SignalInterface
 {

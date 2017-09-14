@@ -9,9 +9,9 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use GuzzleHttp\Client as HttpClient;
-use function Prelude\pipe;
 use function GuzzleHttp\{json_encode, json_decode};
 use function GuzzleHttp\Psr7\{copy_to_string, stream_for};
+use function Prelude\pipe;
 
 final class RDStation
 {
@@ -30,10 +30,7 @@ final class RDStation
      */
     private $httpClient;
 
-    public function __construct(
-        string $token,
-        ServerRequestInterface $request
-    ) {
+    public function __construct(string $token, ServerRequestInterface $request) {
         $this->token = $token;
         $this->request = $request;
         $this->httpClient = new HttpClient([
