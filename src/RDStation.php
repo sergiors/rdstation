@@ -4,10 +4,14 @@ declare(strict_types = 1);
 
 namespace Sergiors\RDStation;
 
-use GuzzleHttp\Client as HttpClient;
-use GuzzleHttp\ClientInterface;
-use Psr\Log\LoggerInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
+use GuzzleHttp\Client as HttpClient;
+use function Prelude\pipe;
+use function GuzzleHttp\{json_encode, json_decode};
+use function GuzzleHttp\Psr7\{copy_to_string, stream_for};
 
 final class RDStation
 {
@@ -22,45 +26,47 @@ final class RDStation
     private $request;
 
     /**
-     * @var LoggerInterface
-     */
-    private $logger;
-
-    /**
      * @var ClientInterface
      */
     private $httpClient;
 
     public function __construct(
         string $token,
-        ServerRequestInterface $request,
-        LoggerInterface $logger,
-        ClientInterface $httpClient = null
+        ServerRequestInterface $request
     ) {
         $this->token = $token;
         $this->request = $request;
-        $this->httpClient = $httpClient ?: new HttpClient();
-        $this->logger = $logger;
+        $this->httpClient = new HttpClient([
+            'base_uri' => 'https://www.rdstation.com.br/api/1.3/'
+        ]);
     }
 
-    public function sendRequest(array $data, string $endpoint): bool
+    public function sendRequest(RequestInterface $request): ResponseInterface
     {
-        $uri = 'https://www.rdstation.com.br/api/1.3'.$endpoint;
-
         try {
-            $this->httpClient->request('POST', $uri, [
-                'json' => array_merge([
-                    'token_rdstation' => $this->token,
-                    'c_utmz' => $this->request->getCookieParams()['__utmz'] ?? '',
-                    'traffic_source' => $this->request->getServerParams()['HTTP_HOST'] ?? '',
-                ], $data)
-            ]);
+            $body = pipe(
+                function (StreamInterface $stream) {
+                    return copy_to_string($stream);
+                },
+                function (string $str) {
+                    return json_decode($str, true);
+                },
+                function (array $params) {
+                    return array_merge($params, [
+                        'token_rdstation' => $this->token,
+                        'c_utmz' => $this->request->getCookieParams()['__utmz'] ?? '',
+                    ]);
+                },
+                function (array $params) {
+                    return stream_for(json_encode($params));
+                }
+            )($request->getBody());
 
-            $this->logger->debug('Everything was sent', $data);
+            return $this->httpClient->send(
+                $request->withBody($body)
+            );
         } catch (\Throwable $e) {
             throw new \RuntimeException('Something are wrong', $e->getCode(), $e);
         }
-
-        return true;
     }
 }

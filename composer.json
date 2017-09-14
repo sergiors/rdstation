@@ -22,7 +22,6 @@
     "require": {
         "php": "^7.0",
         "psr/http-message": "^1.0",
-        "psr/log": "^1.0",
         "guzzlehttp/guzzle": "^6.3",
         "respect/validation": "^1.1",
         "prelude/prelude": "dev-master"
@@ -31,7 +30,6 @@
         "phpunit/phpunit": "^6.3",
         "bmitch/churn-php": "^0.2.0",
         "zendframework/zend-diactoros": "^1.6",
-        "monolog/monolog": "^1.23",
         "fzaninotto/faker": "^1.7"
     },
     "repositories": [

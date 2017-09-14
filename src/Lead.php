@@ -6,6 +6,8 @@ namespace Sergiors\RDStation;
 
 use Respect\Validation\Validator as v;
 use function Prelude\{equals, anyPass};
+use GuzzleHttp\Psr7\Request;
+use function GuzzleHttp\json_encode;
 
 final class Lead implements SignalInterface
 {
@@ -26,13 +28,13 @@ final class Lead implements SignalInterface
         }
 
         $this->rdstation = $rdstation;
-        $this->params['id'] = $id;
+        $this->params['identificador'] = $id;
         $this->params['email'] = $email;
     }
 
-    public function addParam(string $key, string $value)
+    public function addParam(string $key, string $value): self
     {
-        $anyPass = anyPass([
+        $validKeys = anyPass([
             equals('name'),
             equals('company'),
             equals('job_title'),
@@ -40,15 +42,31 @@ final class Lead implements SignalInterface
             equals('mobile_phone'),
         ]);
 
-        if (!$anyPass($key)) {
-            throw new \InvalidArgumentException();
+        if (!$validKeys($key)) {
+            throw new \InvalidArgumentException('Parameter does not valid');
         }
 
         $this->params[$key] = $value;
+
+        return $this;
     }
 
-    public function trigger(): bool
+    public function addTag(string $tag): self
     {
-        return $this->rdstation->sendRequest($this->params, '/conversions');
+        $this->params['tags'][] = $tag;
+
+        return $this;
+    }
+
+    public function trigger()
+    {
+        $headers = ['Content-Type' => 'application/json'];
+
+        $this->rdstation->sendRequest(new Request(
+            'POST',
+            'conversions',
+            $headers,
+            json_encode($this->params)
+        ));
     }
 }

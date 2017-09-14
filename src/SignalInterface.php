@@ -6,5 +6,5 @@ namespace Sergiors\RDStation;
 
 interface SignalInterface
 {
-    public function trigger(): bool;
+    public function trigger();
 }

@@ -5,8 +5,6 @@ declare(strict_types = 1);
 namespace Sergiors\RDStation;
 
 use PHPUnit\Framework\TestCase;
-use Monolog\Logger;
-use Monolog\Handler\NullHandler;
 use Zend\Diactoros\ServerRequestFactory;
 use Faker\Factory;
 
@@ -15,19 +13,20 @@ final class RDStationFunctionalTest extends TestCase
     public function testSendLead()
     {
         $faker = Factory::create();
-        $logger = new Logger('');
-        $logger->pushHandler(new NullHandler());
         $request = ServerRequestFactory::fromGlobals(
             $_SERVER,
             $_GET,
             $_POST,
-            $_COOKIE,
+            ['__utmz' => '34710580.1505400480.1.1.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided)'],
             $_FILES
         );
 
-        $rdstation = new RDStation(getenv('RDSTATION_TOKEN'), $request, $logger);
+        $rdstation = new RDStation(getenv('RDSTATION_TOKEN'), $request);
         $lead = new Lead($rdstation, 'RDStation Integration', $faker->email);
-        $lead->addParam('name', $faker->name);
+        $lead
+            ->addParam('name', $faker->name)
+            ->addTag('rd_integration')
+            ->addTag('test');
 
         $this->assertTrue($lead->trigger());
     }
