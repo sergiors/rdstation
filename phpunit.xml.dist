@@ -19,6 +19,7 @@
 
     <php>
         <env name="RDSTATION_TOKEN" value="" />
+        <env name="RDSTATION_PRIVATE_TOKEN" value="" />
     </php>
 
     <testsuites>

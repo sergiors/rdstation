@@ -21,7 +21,8 @@ final class RDStationFunctionalTest extends TestCase
             $_FILES
         );
 
-        $rdstation = new RDStation(getenv('RDSTATION_TOKEN'), $request);
+        $apiKey = new ApiKey(getenv('RDSTATION_TOKEN'), getenv('RDSTATION_PRIVATE_TOKEN'));
+        $rdstation = new RDStation($apiKey, $request);
         $lead = new Lead($rdstation, 'RDStation Integration', $faker->email);
         $lead
             ->addParam('name', $faker->name)
