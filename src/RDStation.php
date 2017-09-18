@@ -16,9 +16,9 @@ use function Prelude\pipe;
 final class RDStation
 {
     /**
-     * @var Sergiors\RDStation\ApiKey
+     * @var Sergiors\RDStation\Credentials
      */
-    private $apiKey;
+    private $credentials;
 
     /**
      * @var Request
@@ -30,11 +30,11 @@ final class RDStation
      */
     private $httpClient;
 
-    public function __construct(ApiKey $apiKey, ServerRequestInterface $request)
+    public function __construct(Credentials $credentials, ServerRequestInterface $request)
     {
-        $this->apiKey = $apiKey;
-        $this->request = $request;
-        $this->httpClient = new HttpClient([
+        $this->credentials = $credentials;
+        $this->request     = $request;
+        $this->httpClient  = new HttpClient([
             'base_uri' => 'https://www.rdstation.com.br/api/1.3/'
         ]);
     }
@@ -51,7 +51,7 @@ final class RDStation
                 },
                 function (array $params) {
                     return array_merge($params, [
-                        'token_rdstation' => $this->apiKey->getPublicToken(),
+                        'token_rdstation' => $this->credentials->token,
                         'c_utmz' => $this->request->getCookieParams()['__utmz'] ?? '',
                     ]);
                 },
