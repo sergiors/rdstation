@@ -16,7 +16,7 @@ use function Prelude\pipe;
 final class RDStation
 {
     /**
-     * @var Sergiors\RDStation\Credentials
+     * @var Credentials
      */
     private $credentials;
 

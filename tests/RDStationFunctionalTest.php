@@ -10,25 +10,37 @@ use Faker\Factory;
 
 final class RDStationFunctionalTest extends TestCase
 {
-    public function testSendLead()
+    public function setUp()
     {
-        $faker = Factory::create();
-        $request = ServerRequestFactory::fromGlobals(
+        $this->faker = Factory::create();
+        $this->request = ServerRequestFactory::fromGlobals(
             $_SERVER,
             $_GET,
             $_POST,
             ['__utmz' => '34710580.1505400480.1.1.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided)'],
             $_FILES
         );
+        $this->credentials = new Credentials(getenv('RDSTATION_TOKEN'), getenv('RDSTATION_PRIVATE_TOKEN'));
+    }
 
-        $credentials = new Credentials(getenv('RDSTATION_TOKEN'), getenv('RDSTATION_PRIVATE_TOKEN'));
-        $rdstation = new RDStation($credentials, $request);
-        $lead = new Lead($rdstation, 'RDStation Integration', $faker->email);
+    public function testSendLead()
+    {
+        $rdstation = new RDStation($this->credentials, $this->request);
+        $lead = new Lead($rdstation, 'RDStation Integration', $this->faker->email);
         $lead
-            ->addParam('name', $faker->name)
+            ->addParam('name', $this->faker->name)
             ->addTag('rd_integration')
             ->addTag('test');
 
-        $this->assertTrue($lead->trigger());
+        $lead->trigger();
+    }
+
+    public function testThrowInvalidArgumentException()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $rdstation = new RDStation($this->credentials, $this->request);
+        $lead = new Lead($rdstation, 'RDStation Integration', $this->faker->email);
+        $lead->addParam('nonexists', '');
     }
 }
