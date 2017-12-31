@@ -1,9 +1,10 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Sergiors\RDStation;
 
+use InvalidArgumentException;
 use Respect\Validation\Validator as v;
 use GuzzleHttp\Psr7\Request;
 use function GuzzleHttp\json_encode;
@@ -24,7 +25,7 @@ final class Lead implements SignalInterface
     public function __construct(RDStation $rdstation, string $id, string $email)
     {
         if (!v::email()->validate($email)) {
-            throw new \InvalidArgumentException('Email is not valid');
+            throw new InvalidArgumentException('Email is not valid');
         }
 
         $this->rdstation = $rdstation;
@@ -43,7 +44,7 @@ final class Lead implements SignalInterface
         ]);
 
         if (!$validKeys($key)) {
-            throw new \InvalidArgumentException('Parameter is not valid');
+            throw new InvalidArgumentException('Parameter is not valid');
         }
 
         $this->params[$key] = $value;

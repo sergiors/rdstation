@@ -1,9 +1,11 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Sergiors\RDStation;
 
+use Throwable;
+use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -30,12 +32,14 @@ final class RDStation
      */
     private $httpClient;
 
-    public function __construct(Credentials $credentials, ServerRequestInterface $request)
-    {
+    public function __construct(
+        Credentials $credentials,
+        ServerRequestInterface $request
+    ) {
         $this->credentials = $credentials;
         $this->request     = $request;
         $this->httpClient  = new HttpClient([
-            'base_uri' => 'https://www.rdstation.com.br/api/1.3/'
+            'base_uri' => 'https://www.rdstation.com.br/api/1.3/',
         ]);
     }
 
@@ -63,8 +67,8 @@ final class RDStation
             return $this->httpClient->send(
                 $request->withBody($body)
             );
-        } catch (\Throwable $e) {
-            throw new \RuntimeException('Something is wrong', $e->getCode(), $e);
+        } catch (Throwable $e) {
+            throw new RuntimeException('Something is wrong', $e->getCode(), $e);
         }
     }
 }
